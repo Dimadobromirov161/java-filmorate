@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-        import org.springframework.http.HttpMethod;
-        import ru.yandex.practicum.filmorate.model.Film;
         import lombok.extern.slf4j.Slf4j;
         import org.springframework.web.bind.annotation.*;
-        import ru.yandex.practicum.filmorate.validators.FilmValidator;
+        import ru.yandex.practicum.filmorate.exception.ValidationException;
+        import ru.yandex.practicum.filmorate.model.Film;
 
         import javax.validation.Valid;
+        import java.util.ArrayList;
+        import java.util.HashMap;
         import java.util.List;
-        import lombok.extern.slf4j.Slf4j;
+        import java.util.Map;
 
 
 @Slf4j

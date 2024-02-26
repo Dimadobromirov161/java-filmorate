@@ -10,8 +10,10 @@ package ru.yandex.practicum.filmorate.controllers;
 
         import javax.validation.Valid;
         import java.util.List;
+        import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {

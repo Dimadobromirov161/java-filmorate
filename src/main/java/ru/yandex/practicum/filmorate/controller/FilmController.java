@@ -1,15 +1,15 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.http.HttpMethod;
-import ru.yandex.practicum.filmorate.dao.FilmRepository;
-import ru.yandex.practicum.filmorate.model.Film;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.validators.FilmValidator;
+        import org.springframework.http.HttpMethod;
+        import ru.yandex.practicum.filmorate.dao.FilmRepository;
+        import ru.yandex.practicum.filmorate.model.Film;
+        import org.slf4j.Logger;
+        import org.slf4j.LoggerFactory;
+        import org.springframework.web.bind.annotation.*;
+        import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
-import javax.validation.Valid;
-import java.util.List;
+        import javax.validation.Valid;
+        import java.util.List;
 
 
 @RestController
@@ -28,10 +28,14 @@ public class FilmController {
     }
 
     @PutMapping()
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        FilmValidator.validate(film, repository.getAll(), HttpMethod.PUT);
-        log.info("object " + film + " passed validation. update and returns object");
-        repository.update(film);
+    public Film update(@Valid @RequestBody Film film) {
+        int id = film.getId();
+        if (!films.containsKey(id)) {
+            log.debug("Фильм не найден.");
+            throw new ValidationException("Фильм не найден.");
+        }
+        films.put(film.getId(), film);
+        log.debug("Фильм под названием {} обновлен.", film.getName());
         return film;
 
     }

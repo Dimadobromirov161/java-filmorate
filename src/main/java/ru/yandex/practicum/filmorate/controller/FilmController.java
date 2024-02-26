@@ -13,32 +13,36 @@ package ru.yandex.practicum.filmorate.controllers;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequestMapping("films")
 public class FilmController {
-
     private static int generatorId = 0;
     private final Map<Integer, Film> films = new HashMap<>();
 
-    @PostMapping()
-    public Film addFilm(@Valid @RequestBody Film film) {
-        FilmValidator.validate(film, repository.getAll(), HttpMethod.POST);
-        log.info("object " + film + " passed validation. return object");
-        repository.add(film);
+    @GetMapping
+    public List<Film> findAll() {
+        return new ArrayList<>(films.values());
+    }
+
+    @PostMapping
+    public Film create(@Valid @RequestBody Film film) {
+        film.setId(++generatorId);
+        films.put(film.getId(), film);
+        log.debug("Фильм под названием {} создан.", film.getName());
         return film;
     }
 
-    @PutMapping()
+    @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         int id = film.getId();
-        if (!films.containsKey(id)) {
+        if(!films.containsKey(id)) {
             log.debug("Фильм не найден.");
             throw new ValidationException("Фильм не найден.");
         }
         films.put(film.getId(), film);
         log.debug("Фильм под названием {} обновлен.", film.getName());
         return film;
-
     }
+}
 
     @GetMapping
     public List<Film> getFilms() {

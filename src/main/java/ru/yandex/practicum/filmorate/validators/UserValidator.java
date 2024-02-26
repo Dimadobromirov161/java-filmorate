@@ -9,64 +9,85 @@ package ru.yandex.practicum.filmorate.validators;
         import java.time.LocalDate;
         import java.util.Map;
 
-public class UserValidator {
+class UserValidator {
+    private User user;
+    private static Validator validator;
 
-    private static final Logger log = LoggerFactory.getLogger(UserValidator.class);
-
-    public static void validate(User user, Map<Integer, User> users, HttpMethod method) {
-        validateLogin(user);
-        validateEmail(user);
-        validateUsername(user);
-        validateBirthDate(user);
-        if (method.toString().equals("PUT")) {
-            validateId(user, users);
-        }
+    @BeforeEach
+    void setUp() {
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
-    private static void validateId(User user, Map<Integer, User> users) {
-        if (!users.containsKey(user.getId())) {
-            log.debug(user + " failed validationId");
-            throw new ValidationException("Id is incorrect");
-        }
-        log.debug(user + " passed validationId");
+    @Test
+    void validateUserEmailEmpty() {
+        user = User.builder()
+                .id(1)
+                .email("")
+                .login("ya")
+                .name("Ivan")
+                .birthday(LocalDate.of(1986, 11, 15))
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+        assertEquals("Электронная почта не может быть пустой.", violations.iterator().next().getMessage());
     }
 
-    private static void validateEmail(User user) {
-        if (!user.getEmail().contains("@") && !user.getEmail().isBlank()) {
-            log.debug(user + " failed validationEmail");
-            throw new ValidationException("Email is incorrect");
-        }
-        log.debug(user + " passed validationEmail");
+    @Test
+    void validateUserEmailIncorrect() {
+        user = User.builder()
+                .id(1)
+                .email("123ya.ru")
+                .login("ya")
+                .name("Ivan")
+                .birthday(LocalDate.of(1986, 11, 15))
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+        assertEquals("Электронная почта должна содержать символ @.", violations.iterator().next().getMessage());
     }
 
-    private static void validateLogin(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.debug(user + " failed validationLogin");
-            throw new ValidationException("Login is incorrect");
-        }
-        log.debug(user + " passed validationLogin");
+    @Test
+    void validateUserLoginEmpty() {
+        user = User.builder()
+                .id(1)
+                .email("123@ya.ru")
+                .name("Ivan")
+                .birthday(LocalDate.of(1986, 11, 15))
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+        assertEquals("Логин не может быть пустым.",
+                violations.iterator().next().getMessage());
     }
 
-    private static void validateUsername(User user) {
-
-        try {
-            if (user.getName().isEmpty()) {
-                log.debug(user + " failed validationUsername");
-                user.setName(user.getLogin());
-            }
-        } catch (NullPointerException e) {
-            log.debug(user + " name is null");
-            user.setName(user.getLogin());
-        }
-        log.debug(user + " passed validationUsername");
+    @Test
+    void validateUserLoginSpace() {
+        user = User.builder()
+                .id(1)
+                .email("123@ya.ru")
+                .login("y a")
+                .name("Ivan")
+                .birthday(LocalDate.of(1986, 11, 15))
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+        assertEquals("Логин не может содержать пробелы.",
+                violations.iterator().next().getMessage());
     }
 
-    private static void validateBirthDate(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug(user + " failed validationBirthDate");
-            throw new ValidationException("BirthDate is incorrect");
-        }
-        log.debug(user + " passed validationBirthDate");
+    @Test
+    void validateUserBirthday() {
+        user = User.builder()
+                .id(1)
+                .email("123@ya.ru")
+                .login("ya")
+                .name("Ivan")
+                .birthday(LocalDate.MAX)
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+        assertEquals("Дата рождения не может быть в будущем.",
+                violations.iterator().next().getMessage());
     }
-
 }

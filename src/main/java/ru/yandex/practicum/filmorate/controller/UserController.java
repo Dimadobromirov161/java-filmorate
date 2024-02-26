@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping("users")
 public class UserController {
     private static int generatorId = 0;
     private final Map<Integer, User> users = new HashMap<>();

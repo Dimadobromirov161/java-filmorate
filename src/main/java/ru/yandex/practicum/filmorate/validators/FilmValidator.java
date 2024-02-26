@@ -1,13 +1,15 @@
 package ru.yandex.practicum.filmorate.validators;
 
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
-        import org.springframework.http.HttpMethod;
-        import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+        import org.junit.jupiter.api.BeforeEach;
+        import org.junit.jupiter.api.Test;
         import ru.yandex.practicum.filmorate.model.Film;
 
+        import javax.validation.ConstraintViolation;
+        import javax.validation.Validation;
+        import javax.validation.Validator;
+        import javax.validation.ValidatorFactory;
         import java.time.LocalDate;
-        import java.util.Map;
+        import java.util.Set;
 
 class FilmValidator {
     private Film film;

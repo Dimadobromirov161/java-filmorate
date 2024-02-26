@@ -16,8 +16,8 @@ package ru.yandex.practicum.filmorate.controllers;
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final FilmRepository repository = new FilmRepository();
+    private static int generatorId = 0;
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @PostMapping()
     public Film addFilm(@Valid @RequestBody Film film) {

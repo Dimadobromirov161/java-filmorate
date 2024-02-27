@@ -43,9 +43,3 @@ public class FilmController {
         return film;
     }
 }
-
-    @GetMapping
-    public List<Film> getFilms() {
-        return repository.getAllInList();
-    }
-}

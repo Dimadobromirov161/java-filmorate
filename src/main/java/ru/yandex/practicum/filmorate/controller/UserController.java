@@ -1,53 +1,43 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.dao.UserRepository;;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validators.UserValidator;
+
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
+
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 public class UserController {
-    private static int generatorId = 0;
-    private final Map<Integer, User> users = new HashMap<>();
 
-    @GetMapping
-    public List<User> findAll() {
-        return new ArrayList<>(users.values());
-    }
+    private final UserRepository repository = new UserRepository();
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        validate(user);
-        user.setId(++generatorId);
-        users.put(user.getId(), user);
-        log.debug("Пользователь {} создан.", user.getLogin());
+    @PostMapping()
+    public User addUser(@Valid  @RequestBody User user) {
+        UserValidator.validate(user, repository.getAll(), HttpMethod.POST);
+        log.info("object " + user + " passed validation. returns object");
+        repository.add(user);
         return user;
     }
 
-    @PutMapping
-    public User update(@Valid @RequestBody User user) {
-        int id = user.getId();
-        if (!users.containsKey(id)) {
-            log.debug("Пользователь не найден.");
-            throw new ValidationException("Пользователь не найден.");
-        }
-        validate(user);
-        users.put(id, user);
-        log.debug("Пользователь {} обновлен.", user.getLogin());
+    @PutMapping()
+    public User updateUser(@Valid @RequestBody User user) {
+        UserValidator.validate(user, repository.getAll(), HttpMethod.PUT);
+        log.info("object " + user + " passed validation. update and returns object");
+        repository.update(user);
         return user;
     }
 
-    public void validate(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    @GetMapping()
+    public List<User> getUsers() {
+        return repository.getAllInList();
     }
-}
 }

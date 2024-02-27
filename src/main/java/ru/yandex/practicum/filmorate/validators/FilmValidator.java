@@ -1,91 +1,66 @@
 package ru.yandex.practicum.filmorate.validators;
 
-        import org.junit.jupiter.api.BeforeEach;
-        import org.junit.jupiter.api.Test;
-        import ru.yandex.practicum.filmorate.model.Film;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 
-        import javax.validation.ConstraintViolation;
-        import javax.validation.Validation;
-        import javax.validation.Validator;
-        import javax.validation.ValidatorFactory;
-        import java.time.LocalDate;
-        import java.util.Set;
+import java.time.LocalDate;
+import java.util.Map;
 
-class FilmValidator {
-    private Film film;
-    private static Validator validator;
+public class FilmValidator {
 
-    @BeforeEach
-    void setUp() {
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
+    private static final LocalDate FIRST_MOVIE_RELEASE = LocalDate.of(1895, 12, 28);
+    private static final Logger log = LoggerFactory.getLogger(FilmValidator.class);
+
+    public static void validate (Film film, Map<Integer, Film> films, HttpMethod method) throws ValidationException {
+        validateName(film);
+        validateDescription(film);
+        validateReleaseDate(film);
+        validateMovieDuration(film);
+        if (method.toString().equals("PUT")) {
+            validateId(film, films);
+        }
+    }
+    private static void validateId(Film film, Map<Integer, Film> films) {
+        if (!films.containsKey(film.getId())) {
+            log.debug(film + " failed validationId");
+            throw new ValidationException("Film id is incorrect");
+        }
+        log.debug(film + " passed validationId");
     }
 
-    @Test
-    void validateFilmName() {
-        film = Film.builder()
-                .id(1)
-                .name("")
-                .description("Описание фильма")
-                .releaseDate(LocalDate.of(2002, 2, 2))
-                .duration(100)
-                .build();
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
-        assertEquals("Введите название фильма.", violations.iterator().next().getMessage());
+    private static void validateName(Film film) {
+        if (film.getName().isBlank()) {
+            log.debug(film + " failed validationName");
+            throw new ValidationException("Film name is Empty");
+        }
+        log.debug(film + " passed validationName");
     }
 
-    @Test
-    void validateFilmDescription() {
-        film = Film.builder()
-                .id(1)
-                .name("Film")
-                .description("Из-под покрова тьмы ночной,\n" +
-                        "Из чёрной ямы страшных мук\n" +
-                        "Благодарю я всех богов\n" +
-                        "За мой непокорённый дух.\n" +
-                        "\n" +
-                        "И я, попав в тиски беды,\n" +
-                        "Не дрогнул и не застонал,\n" +
-                        "И под ударами судьбы\n" +
-                        "Я ранен был, но не упал.\n" +
-                        "\n" +
-                        "Т")
-                .releaseDate(LocalDate.of(2002, 2, 2))
-                .duration(100)
-                .build();
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
-        assertEquals("Слишком длинное описание.", violations.iterator().next().getMessage());
+    private static void validateDescription(Film film) {
+        if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            log.debug(film + " failed validationDescription");
+            throw new ValidationException("Description is bigger than max");
+        }
+        log.debug(film + " passed validationDescription");
     }
 
-    @Test
-    void validateFilmReleaseDate() {
-        film = Film.builder()
-                .id(1)
-                .name("Film")
-                .description("Описание фильма")
-                .releaseDate(LocalDate.of(1895, 12, 27))
-                .duration(100)
-                .build();
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
-        assertEquals("Введите дату релиза не ранее 28 декабря 1895 года.",
-                violations.iterator().next().getMessage());
+    private static void validateReleaseDate(Film film) {
+        if (film.getReleaseDate().isBefore(FIRST_MOVIE_RELEASE)) {
+            log.debug(film + " failed validationReleaseDate");
+            throw new ValidationException("Release date is before than first movie release");
+        }
+        log.debug(film + " passed validationReleaseDate");
     }
 
-    @Test
-    void validateFilmDuration() {
-        film = Film.builder()
-                .id(1)
-                .name("Film")
-                .description("Описание фильма")
-                .releaseDate(LocalDate.of(1895, 12, 29))
-                .duration(-100)
-                .build();
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
-        assertEquals("Продолжительность фильма должна быть больше 0.",
-                violations.iterator().next().getMessage());
+    private static void validateMovieDuration(Film film) {
+        if (film.getDuration() < 0) {
+            log.debug(film + " failed validationMovieDuration");
+            throw new ValidationException("Movie's duration is negative");
+        }
+        log.debug(film + " passed validationMovieDuration");
     }
 }

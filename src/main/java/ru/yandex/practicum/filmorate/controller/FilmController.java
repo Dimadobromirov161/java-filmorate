@@ -1,45 +1,44 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-        import lombok.extern.slf4j.Slf4j;
-        import org.springframework.web.bind.annotation.*;
-        import ru.yandex.practicum.filmorate.exception.ValidationException;
-        import ru.yandex.practicum.filmorate.model.Film;
+import org.springframework.http.HttpMethod;
+import ru.yandex.practicum.filmorate.dao.FilmRepository;
+import ru.yandex.practicum.filmorate.model.Film;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
-        import javax.validation.Valid;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
+import javax.validation.Valid;
+import java.util.List;
 
 
-@Slf4j
 @RestController
-@RequestMapping("films")
+@RequestMapping("/films")
 public class FilmController {
-    private static int generatorId = 0;
-    private final Map<Integer, Film> films = new HashMap<>();
+
+    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final FilmRepository repository = new FilmRepository();
+
+    @PostMapping()
+    public Film addFilm(@Valid @RequestBody Film film) {
+        FilmValidator.validate(film, repository.getAll(), HttpMethod.POST);
+        log.info("object " + film + " passed validation. return object");
+        repository.add(film);
+        return film;
+    }
+
+    @PutMapping()
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        FilmValidator.validate(film, repository.getAll(), HttpMethod.PUT);
+        log.info("object " + film + " passed validation. update and returns object");
+        repository.update(film);
+        return film;
+
+    }
 
     @GetMapping
-    public List<Film> findAll() {
-        return new ArrayList<>(films.values());
+    public List<Film> getFilms() {
+        return repository.getAllInList();
     }
-
-    @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
-        film.setId(++generatorId);
-        films.put(film.getId(), film);
-        log.debug("Фильм под названием {} создан.", film.getName());
-        return film;
-    }
-
-    @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
-        int id = film.getId();
-        if (!films.containsKey(id)) {
-            log.debug("Фильм не найден.");
-            throw new ValidationException("Фильм не найден.");
-        }
-        films.put(film.getId(), film);
-        log.debug("Фильм под названием {} обновлен.", film.getName());
-        return film;
-    }
+}
 }

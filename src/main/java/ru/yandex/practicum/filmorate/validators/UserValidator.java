@@ -1,20 +1,20 @@
 package ru.yandex.practicum.filmorate.validators;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+        import org.slf4j.Logger;
+        import org.slf4j.LoggerFactory;
+        import org.springframework.http.HttpMethod;
+        import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+        import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+        import java.time.LocalDate;
+        import java.util.List;
+        import java.util.Map;
 
 public class UserValidator {
 
     private static final Logger log = LoggerFactory.getLogger(UserValidator.class);
 
-    public static void validate (User user, Map<Integer, User> users, HttpMethod method) {
+    public static void validate(User user, Map<Integer, User> users, HttpMethod method) {
         validateLogin(user);
         validateEmail(user);
         validateUsername(user);
@@ -24,7 +24,7 @@ public class UserValidator {
         }
     }
 
-    private static void validateId (User user, Map<Integer, User> users) {
+    private static void validateId(User user, Map<Integer, User> users) {
         if (!users.containsKey(user.getId())) {
             log.debug(user + " failed validationId");
             throw new ValidationException("Id is incorrect");

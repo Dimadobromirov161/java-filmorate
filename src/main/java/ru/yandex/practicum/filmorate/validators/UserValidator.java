@@ -7,7 +7,6 @@ package ru.yandex.practicum.filmorate.validators;
         import ru.yandex.practicum.filmorate.model.User;
 
         import java.time.LocalDate;
-        import java.util.List;
         import java.util.Map;
 
 public class UserValidator {

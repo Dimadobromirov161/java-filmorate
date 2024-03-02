@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate;
         import org.junit.jupiter.api.BeforeEach;
         import org.junit.jupiter.api.Test;
         import ru.yandex.practicum.filmorate.model.Film;
-        import ru.yandex.practicum.filmorate.model.Mpa;
 
         import javax.validation.ConstraintViolation;
         import javax.validation.Validation;
@@ -32,7 +31,6 @@ class FilmValidationTest {
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(2002, 2, 2))
                 .duration(100)
-                .mpa(new Mpa(1, "G"))
                 .build();
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -57,7 +55,6 @@ class FilmValidationTest {
                         "Т")
                 .releaseDate(LocalDate.of(2002, 2, 2))
                 .duration(100)
-                .mpa(new Mpa(1, "G"))
                 .build();
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -72,7 +69,6 @@ class FilmValidationTest {
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .duration(100)
-                .mpa(new Mpa(1, "G"))
                 .build();
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -88,7 +84,6 @@ class FilmValidationTest {
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(1895, 12, 29))
                 .duration(-100)
-                .mpa(new Mpa(1, "G"))
                 .build();
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
